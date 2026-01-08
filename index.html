@@ -111,9 +111,9 @@
                         PROFESSIONAL COLLECTIVE
                     </span>
                     <h1
-                        class="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight tracking-tight text-slate-900 mb-8">
-                        Crafting Value <br>
-                        <span class="text-slate-400">Through Unity.</span>
+                        class="text-5xl md:text-7xl lg:text-7xl font-bold leading-tight tracking-tight text-slate-900 mb-8">
+                        Accelerating Your <br>
+                        <span class="text-slate-400">Business Growth.</span>
                     </h1>
                     <p class="text-lg text-slate-600 max-w-xl leading-relaxed font-light mb-12">
                         個々の専門性が調和し、新たな価値を創出する。<br>
@@ -261,7 +261,7 @@
                             <div class="py-6 grid grid-cols-3 gap-4">
                                 <dt class="text-xs font-bold text-slate-400 uppercase tracking-widest">Representative
                                 </dt>
-                                <dd class="col-span-2 text-sm font-medium text-slate-900">幕田 愛 / Ai Makuta</dd>
+                                <dd class="col-span-2 text-sm font-medium text-slate-900">幕田 愛 / Megumi Makuta</dd>
                             </div>
                             <div class="py-6 grid grid-cols-3 gap-4">
                                 <dt class="text-xs font-bold text-slate-400 uppercase tracking-widest">Established</dt>
@@ -293,18 +293,18 @@
                     <form id="contact-form" class="space-y-5">
                         <div class="space-y-1">
                             <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Name</label>
-                            <input type="text" required
+                            <input type="text" name="name" required
                                 class="w-full bg-white border border-slate-200 px-4 py-3 rounded-lg focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition text-sm">
                         </div>
                         <div class="space-y-1">
                             <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email</label>
-                            <input type="email" required
+                            <input type="email" name="email" required
                                 class="w-full bg-white border border-slate-200 px-4 py-3 rounded-lg focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition text-sm">
                         </div>
                         <div class="space-y-1">
                             <label
                                 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Message</label>
-                            <textarea rows="4" required
+                            <textarea name="message" rows="4" required
                                 class="w-full bg-white border border-slate-200 px-4 py-3 rounded-lg focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition text-sm"></textarea>
                         </div>
                         <button type="submit"
@@ -321,9 +321,9 @@
     <footer class="py-8 bg-white border-t border-slate-100">
         <div
             class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-[10px] font-bold tracking-[0.2em] text-slate-400 uppercase">
-            <div>&copy; 2024 CAMOUFLA LLC.</div>
+            <div>&copy; 2026 CAMOUFLA LLC.</div>
             <div class="flex space-x-8 mt-4 md:mt-0">
-                <a href="#" class="hover:text-slate-900 transition">Privacy Policy</a>
+                <a href="privacy.html" class="hover:text-slate-900 transition">Privacy Policy</a>
             </div>
         </div>
     </footer>
@@ -350,29 +350,51 @@
             observer.observe(element);
         });
 
-        // Contact Form Submission Mockup
+        // Contact Form Submission
         const contactForm = document.getElementById('contact-form');
         const successMsg = document.getElementById('contact-success');
 
-        contactForm.addEventListener('submit', (e) => {
+        contactForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = contactForm.querySelector('button');
             const originalText = btn.innerHTML;
 
+            // Collect form data
+            const formData = new FormData(contactForm);
+            const data = Object.fromEntries(formData.entries());
+
             btn.innerHTML = 'SENDING...';
             btn.disabled = true;
 
-            setTimeout(() => {
-                contactForm.reset();
+            try {
+                const response = await fetch('http://localhost:3000/api/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    contactForm.reset();
+                    successMsg.classList.remove('hidden');
+                    successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                    setTimeout(() => {
+                        successMsg.classList.add('hidden');
+                    }, 8000);
+                } else {
+                    alert('送信に失敗しました: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('サーバーとの通信に失敗しました。');
+            } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
-                successMsg.classList.remove('hidden');
-                successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-                setTimeout(() => {
-                    successMsg.classList.add('hidden');
-                }, 5000);
-            }, 1000);
+            }
         });
     </script>
 </body>
